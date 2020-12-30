@@ -55,6 +55,12 @@ extern "C" {
 #endif
 
 /* constants -----------------------------------------------------------------*/
+#define TRACE
+#define ENAGLO
+#define ENAGAL
+#define ENACMP
+#define ENAQZS
+#define NEXOBS 3
 
 #define VER_RTKLIB  "2.4.3"             /* library version */
 

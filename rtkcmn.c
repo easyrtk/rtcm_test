@@ -2915,6 +2915,10 @@ extern void trace(int level, const char *format, ...)
     fprintf(fp_trace,"%d ",level);
     va_start(ap,format); vfprintf(fp_trace,format,ap); va_end(ap);
     fflush(fp_trace);
+#ifdef _DEBUG
+    fprintf(stderr, "%d ", level);
+    va_start(ap, format); vfprintf(stderr, format, ap); va_end(ap);
+#endif
 }
 extern void tracet(int level, const char *format, ...)
 {
