@@ -12,9 +12,14 @@ int main()
     rtcm_t rtcm;// = { 0 };
     if (init_rtcm(&rtcm))
     {
-        FILE* fRTCM_IN = fopen("C:\\rtklib\\2\\sta8100364c34.rtcm3", "rb");
-        FILE* fRTCM_OUT = fopen("C:\\rtklib\\2\\sta8100364c34_.rtcm3", "wb");
-        FILE* fCSV_OUT = fopen("C:\\rtklib\\2\\sta8100364c34.csv", "w");
+        //FILE* fRTCM_IN = fopen("C:\\rtklib\\2\\sta8100364c34.rtcm3", "rb");
+        //FILE* fRTCM_OUT = fopen("C:\\rtklib\\2\\sta8100364c34_.rtcm3", "wb");
+        //FILE* fCSV_OUT = fopen("C:\\rtklib\\2\\sta8100364c34.csv", "w");
+
+        FILE* fRTCM_IN = fopen("C:\\rtklib\\jfng\\jfng365i46.rtcm3", "rb");
+        FILE* fRTCM_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.rtcm3", "wb");
+        FILE* fCSV_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.csv", "w");
+
         while (fRTCM_IN != NULL && !feof(fRTCM_IN))
         {
             int ret = input_rtcm3f(&rtcm, fRTCM_IN);

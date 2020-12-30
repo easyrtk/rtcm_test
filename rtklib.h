@@ -60,6 +60,8 @@ extern "C" {
 #define ENAGAL
 #define ENACMP
 #define ENAQZS
+#define ENALEO
+
 #define NEXOBS 3
 
 #define VER_RTKLIB  "2.4.3"             /* library version */
@@ -156,7 +158,7 @@ extern "C" {
 #endif
 #ifdef ENAGAL
 #define MINPRNGAL   1                   /* min satellite PRN number of Galileo */
-#define MAXPRNGAL   36                  /* max satellite PRN number of Galileo */
+#define MAXPRNGAL   36                  /* max satellite PRN number of Galileo https://www.gsc-europa.eu/system-service-status/constellation-information */
 #define NSATGAL    (MAXPRNGAL-MINPRNGAL+1) /* number of Galileo satellites */
 #define NSYSGAL     1
 #else
@@ -182,7 +184,7 @@ extern "C" {
 #endif
 #ifdef ENACMP
 #define MINPRNCMP   1                   /* min satellite sat number of BeiDou */
-#define MAXPRNCMP   37                  /* max satellite sat number of BeiDou */
+#define MAXPRNCMP   61                  /* max satellite sat number of BeiDou https://www.glonass-iac.ru/en/BEIDOU/ */
 #define NSATCMP     (MAXPRNCMP-MINPRNCMP+1) /* number of BeiDou satellites */
 #define NSYSCMP     1
 #else

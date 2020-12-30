@@ -1860,7 +1860,7 @@ static void save_msm_obs(rtcm_t *rtcm, int sys, msm_h_t *h, const double *r,
             index=obsindex(&rtcm->obs,rtcm->time,sat);
         }
         else {
-            trace(2,"rtcm3 %d satellite error: prn=%d\n",type,prn);
+            trace(2,"rtcm3 %d satellite error: %d,prn=%d\n",type,sys,prn);
         }
         for (k=0;k<h->nsig;k++) {
             if (!h->cellmask[k+i*h->nsig]) continue;
