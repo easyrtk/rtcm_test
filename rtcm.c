@@ -74,25 +74,31 @@ extern int init_rtcm(rtcm_t *rtcm)
     obsd_t data0={{0}};
     eph_t  eph0 ={0,-1,-1};
     geph_t geph0={0,-1};
+#ifndef _NEW_OBS_
     ssr_t ssr0={{{0}}};
+#endif
     int i,j;
     
     trace(3,"init_rtcm:\n");
     
     rtcm->staid=rtcm->stah=rtcm->seqno=rtcm->outtype=0;
     rtcm->time=rtcm->time_s=time0;
+#ifndef _NEW_OBS_
     rtcm->sta.name[0]=rtcm->sta.marker[0]='\0';
     rtcm->sta.antdes[0]=rtcm->sta.antsno[0]='\0';
     rtcm->sta.rectype[0]=rtcm->sta.recver[0]=rtcm->sta.recsno[0]='\0';
+#endif
     rtcm->sta.antsetup=rtcm->sta.itrf=rtcm->sta.deltype=0;
     for (i=0;i<3;i++) {
         rtcm->sta.pos[i]=rtcm->sta.del[i]=0.0;
     }
     rtcm->sta.hgt=0.0;
+#ifndef _NEW_OBS_
     rtcm->dgps=NULL;
     for (i=0;i<MAXSAT;i++) {
         rtcm->ssr[i]=ssr0;
     }
+#endif
     rtcm->msg[0]=rtcm->msgtype[0]=rtcm->opt[0]='\0';
     for (i=0;i<6;i++) rtcm->msmtype[i][0]='\0';
     rtcm->obsflag=rtcm->ephsat=0;

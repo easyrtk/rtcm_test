@@ -38,12 +38,16 @@
 #include <math.h>
 #include <time.h>
 #include <ctype.h>
+
+#define _NEW_OBS_
+
 #ifdef WIN32
 #include <winsock2.h>
 #include <windows.h>
 #else
 #include <pthread.h>
 #endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -235,6 +239,8 @@ extern "C" {
 #else
 #define DTTOL       0.025               /* tolerance of time difference (s) */
 #endif
+
+#ifndef _NEW_OBS_
 #define MAXDTOE     7200.0              /* max time difference to GPS Toe (s) */
 #define MAXDTOE_QZS 7200.0              /* max time difference to QZSS Toe (s) */
 #define MAXDTOE_GAL 14400.0             /* max time difference to Galileo Toe (s) */
@@ -287,6 +293,7 @@ extern "C" {
 #define FREQTYPE_L8 0x20                /* frequency type: E5(a+b) */
 #define FREQTYPE_L9 0x40                /* frequency type: S */
 #define FREQTYPE_ALL 0xFF               /* frequency type: all */
+#endif
 
 #define CODE_NONE   0                   /* obs code: none or unknown */
 #define CODE_L1C    1                   /* obs code: L1C/A,G1C/A,E1C (GPS,GLO,GAL,QZS,SBS) */
@@ -346,6 +353,7 @@ extern "C" {
 #define CODE_L9X    55                  /* obs code: SB+C       (IRN) */
 #define MAXCODE     55                  /* max number of obs code */
 
+#ifndef _NEW_OBS_
 #define PMODE_SINGLE 0                  /* positioning mode: single */
 #define PMODE_DGPS   1                  /* positioning mode: DGPS/DGNSS */
 #define PMODE_KINEMA 2                  /* positioning mode: kinematic */
@@ -489,6 +497,7 @@ extern "C" {
 #define LLI_HALFS   0x80                /* LLI: half-cycle subtracted */
 
 #define IMUFMT_KVH  1                   /* imu data format KVH */
+#endif
 
 #define P2_5        0.03125             /* 2^-5 */
 #define P2_6        0.015625            /* 2^-6 */
@@ -515,6 +524,7 @@ extern "C" {
 #define P2_50       8.881784197001252E-16 /* 2^-50 */
 #define P2_55       2.775557561562891E-17 /* 2^-55 */
 
+#ifndef _NEW_OBS_
 #ifdef WIN32
 #define thread_t    HANDLE
 #define lock_t      CRITICAL_SECTION
@@ -529,6 +539,7 @@ extern "C" {
 #define lock(f)     pthread_mutex_lock(f)
 #define unlock(f)   pthread_mutex_unlock(f)
 #define FILEPATHSEP '/'
+#endif
 #endif
 
 /* type definitions ----------------------------------------------------------*/
@@ -554,6 +565,7 @@ typedef struct {        /* observation data */
     obsd_t *data;       /* observation data records */
 } obs_t;
 
+#ifndef _NEW_OBS_
 typedef struct {        /* earth rotation parameter data type */
     double mjd;         /* mjd (days) */
     double xp,yp;       /* pole offset (rad) */
@@ -593,6 +605,7 @@ typedef struct {        /* almanac type */
     double toas;        /* Toa (s) in week */
     double f0,f1;       /* SV clock parameters (af0,af1) */
 } alm_t;
+#endif
 
 typedef struct {        /* GPS/QZS/GAL broadcast ephemeris type */
     int sat;            /* satellite number */
@@ -632,7 +645,7 @@ typedef struct {        /* GLONASS broadcast ephemeris type */
     double taun,gamn;   /* SV clock bias (s)/relative freq bias */
     double dtaun;       /* delay between L1 and L2 (s) */
 } geph_t;
-
+#ifndef _NEW_OBS_
 typedef struct {        /* precise ephemeris type */
     gtime_t time;       /* time (GPST) */
     int index;          /* ephemeris index for multiple files */
@@ -856,7 +869,7 @@ typedef struct {        /* ppp corrections type */
     stec_t *stec[MAXSTA]; /* stec data */
     trop_t *trop[MAXSTA]; /* trop data */
 } pppcorr_t;
-
+#endif
 typedef struct {        /* navigation data type */
     int n,nmax;         /* number of broadcast ephemeris */
     int ng,ngmax;       /* number of glonass ephemeris */
@@ -868,6 +881,7 @@ typedef struct {        /* navigation data type */
     int nf,nfmax;       /* number of satellite fcb data */
     eph_t *eph;         /* GPS/QZS/GAL ephemeris */
     geph_t *geph;       /* GLONASS ephemeris */
+#ifndef _NEW_OBS_
     seph_t *seph;       /* SBAS ephemeris */
     peph_t *peph;       /* precise ephemeris */
     pclk_t *pclk;       /* precise clock */
@@ -875,6 +889,7 @@ typedef struct {        /* navigation data type */
     tec_t *tec;         /* tec grid data */
     fcbd_t *fcb;        /* satellite fcb data */
     erp_t  erp;         /* earth rotation parameters */
+#endif
     double utc_gps[4];  /* GPS delta-UTC parameters {A0,A1,T,W} */
     double utc_glo[4];  /* GLONASS UTC GPS time parameters */
     double utc_gal[4];  /* Galileo UTC GPS time parameters */
@@ -894,6 +909,7 @@ typedef struct {        /* navigation data type */
     double wlbias[MAXSAT];   /* wide-lane bias (cycle) */
     double glo_cpbias[4];    /* glonass code-phase bias {1C,1P,2C,2P} (m) */
     char glo_fcn[MAXPRNGLO+1]; /* glonass frequency channel number + 8 */
+#ifndef _NEW_OBS_
     pcv_t pcvs[MAXSAT]; /* satellite antenna pcv */
     sbssat_t sbssat;    /* SBAS satellite corrections */
     sbsion_t sbsion[MAXBAND+1]; /* SBAS ionosphere corrections */
@@ -902,9 +918,11 @@ typedef struct {        /* navigation data type */
     lexeph_t lexeph[MAXSAT]; /* LEX ephemeris */
     lexion_t lexion;    /* LEX ionosphere correction */
     pppcorr_t pppcorr;  /* ppp corrections */
+#endif
 } nav_t;
 
 typedef struct {        /* station parameter type */
+#ifndef _NEW_OBS_
     char name   [MAXANT]; /* marker name */
     char marker [MAXANT]; /* marker number */
     char antdes [MAXANT]; /* antenna descriptor */
@@ -912,6 +930,7 @@ typedef struct {        /* station parameter type */
     char rectype[MAXANT]; /* receiver type descriptor */
     char recver [MAXANT]; /* receiver firmware version */
     char recsno [MAXANT]; /* receiver serial number */
+#endif
     int antsetup;       /* antenna setup id */
     int itrf;           /* ITRF realization year */
     int deltype;        /* antenna delta type (0:enu,1:xyz) */
@@ -919,7 +938,7 @@ typedef struct {        /* station parameter type */
     double del[3];      /* antenna position delta (e/n/u or x/y/z) (m) */
     double hgt;         /* antenna height (m) */
 } sta_t;
-
+#ifndef _NEW_OBS_
 typedef struct {        /* solution type */
     gtime_t time;       /* time (GPST) */
     double rr[6];       /* position/velocity (m|m/s) */
@@ -967,7 +986,7 @@ typedef struct {        /* solution status buffer type */
     int n,nmax;         /* number of solution/max number of buffer */
     solstat_t *data;    /* solution status data */
 } solstatbuf_t;
-
+#endif
 typedef struct {        /* RTCM control struct type */
     int staid;          /* station id */
     int stah;           /* station health */
@@ -978,8 +997,10 @@ typedef struct {        /* RTCM control struct type */
     obs_t obs;          /* observation data (uncorrected) */
     nav_t nav;          /* satellite ephemerides */
     sta_t sta;          /* station parameters */
+#ifndef _NEW_OBS_
     dgps_t *dgps;       /* output of dgps corrections */
     ssr_t ssr[MAXSAT];  /* output of ssr corrections */
+#endif
     char msg[128];      /* special message */
     char msgtype[256];  /* last message type */
     char msmtype[6][128]; /* msm signal types */
@@ -998,7 +1019,7 @@ typedef struct {        /* RTCM control struct type */
     unsigned int nmsg3[400]; /* message count of RTCM 3 (1-299:1001-1299,300-399:2000-2099,0:ohter) */
     char opt[256];      /* RTCM dependent options */
 } rtcm_t;
-
+#ifndef _NEW_OBS_
 typedef struct {        /* rinex control struct type */
     gtime_t time;       /* message time */
     double ver;         /* rinex version */
@@ -1403,14 +1424,16 @@ typedef void fatalfunc_t(const char *); /* fatal callback function type */
 
 /* global variables ----------------------------------------------------------*/
 extern const double chisqr[];        /* chi-sqr(n) table (alpha=0.001) */
+#endif
 extern const double lam_carr[];      /* carrier wave length (m) {L1,L2,...} */
+#ifndef _NEW_OBS_
 extern const prcopt_t prcopt_default; /* default positioning options */
 extern const solopt_t solopt_default; /* default solution output options */
 extern const sbsigpband_t igpband1[9][8]; /* SBAS IGP band 0-8 */
 extern const sbsigpband_t igpband2[2][5]; /* SBAS IGP band 9-10 */
 extern const char *formatstrs[];     /* stream format strings */
 extern opt_t sysopts[];              /* system options table */
-
+#endif
 /* satellites, systems, codes functions --------------------------------------*/
 EXPORT int  satno   (int sys, int prn);
 EXPORT int  satsys  (int sat, int *prn);
@@ -1418,12 +1441,14 @@ EXPORT int  satid2no(const char *id);
 EXPORT void satno2id(int sat, char *id);
 EXPORT unsigned char obs2code(const char *obs, int *freq);
 EXPORT char *code2obs(unsigned char code, int *freq);
+#ifndef _NEW_OBS_
 EXPORT int  satexclude(int sat, double var, int svh, const prcopt_t *opt);
 EXPORT int  testsnr(int base, int freq, double el, double snr,
                     const snrmask_t *mask);
+#endif
 EXPORT void setcodepri(int sys, int freq, const char *pri);
 EXPORT int  getcodepri(int sys, unsigned char code, const char *opt);
-
+#ifndef _NEW_OBS_
 /* matrix and vector functions -----------------------------------------------*/
 EXPORT double *mat  (int n, int m);
 EXPORT int    *imat (int n, int m);
@@ -1449,7 +1474,7 @@ EXPORT void matprint (const double *A, int n, int m, int p, int q);
 EXPORT void matfprint(const double *A, int n, int m, int p, int q, FILE *fp);
 
 EXPORT void add_fatal(fatalfunc_t *func);
-
+#endif
 /* time and string functions -------------------------------------------------*/
 EXPORT double  str2num(const char *s, int i, int n);
 EXPORT int     str2time(const char *s, int i, int n, gtime_t *t);
@@ -1478,6 +1503,7 @@ EXPORT int read_leaps(const char *file);
 
 EXPORT int adjgpsweek(int week);
 EXPORT unsigned int tickget(void);
+#ifndef _NEW_OBS_
 EXPORT void sleepms(int ms);
 
 EXPORT int reppath(const char *path, char *rpath, gtime_t time, const char *rov,
@@ -1509,7 +1535,7 @@ EXPORT void freenav(nav_t *nav, int opt);
 EXPORT int  readblq(const char *file, const char *sta, double *odisp);
 EXPORT int  readerp(const char *file, erp_t *erp);
 EXPORT int  geterp (const erp_t *erp, gtime_t time, double *val);
-
+#endif
 /* debug trace functions -----------------------------------------------------*/
 EXPORT void traceopen(const char *file);
 EXPORT void traceclose(void);
@@ -1524,14 +1550,15 @@ EXPORT void tracehnav(int level, const nav_t *nav);
 EXPORT void tracepeph(int level, const nav_t *nav);
 EXPORT void tracepclk(int level, const nav_t *nav);
 EXPORT void traceb   (int level, const unsigned char *p, int n);
-
+#ifndef _NEW_OBS_
 /* platform dependent functions ----------------------------------------------*/
 EXPORT int execcmd(const char *cmd);
 EXPORT int expath (const char *path, char *paths[], int nmax);
 EXPORT void createdir(const char *path);
-
+#endif
 /* positioning models --------------------------------------------------------*/
 EXPORT double satwavelen(int sat, int frq, const nav_t *nav);
+#ifndef _NEW_OBS_
 EXPORT double satazel(const double *pos, const double *e, double *azel);
 EXPORT double geodist(const double *rs, const double *rr, double *e);
 EXPORT void dops(int ns, const double *azel, double elmin, double *dop);
@@ -1637,7 +1664,7 @@ EXPORT int tle_name_read(const char *file, tle_t *tle);
 EXPORT int tle_pos(gtime_t time, const char *name, const char *satno,
                    const char *desig, const tle_t *tle, const erp_t *erp,
                    double *rs);
-
+#endif
 /* receiver raw data functions -----------------------------------------------*/
 EXPORT unsigned int getbitu(const unsigned char *buff, int pos, int len);
 EXPORT int          getbits(const unsigned char *buff, int pos, int len);
@@ -1647,6 +1674,7 @@ EXPORT unsigned int rtk_crc32  (const unsigned char *buff, int len);
 EXPORT unsigned int rtk_crc24q (const unsigned char *buff, int len);
 EXPORT unsigned short rtk_crc16(const unsigned char *buff, int len);
 EXPORT int decode_word (unsigned int word, unsigned char *data);
+#ifndef _NEW_OBS_
 EXPORT int decode_frame(const unsigned char *buff, eph_t *eph, alm_t *alm,
                         double *ion, double *utc, int *leaps);
 EXPORT int test_glostr(const unsigned char *buff);
@@ -1701,7 +1729,7 @@ EXPORT int gen_ubx (const char *msg, unsigned char *buff);
 EXPORT int gen_stq (const char *msg, unsigned char *buff);
 EXPORT int gen_nvs (const char *msg, unsigned char *buff);
 EXPORT int gen_lexr(const char *msg, unsigned char *buff);
-
+#endif
 /* rtcm functions ------------------------------------------------------------*/
 EXPORT int init_rtcm   (rtcm_t *rtcm);
 EXPORT void free_rtcm  (rtcm_t *rtcm);
@@ -1712,7 +1740,7 @@ EXPORT int input_rtcm3f(rtcm_t *rtcm, FILE *fp);
 EXPORT int decode_rtcm3(rtcm_t* rtcm);
 EXPORT int gen_rtcm2   (rtcm_t *rtcm, int type, int sync);
 EXPORT int gen_rtcm3   (rtcm_t *rtcm, int type, int sync);
-
+#ifndef _NEW_OBS_
 /* solution functions --------------------------------------------------------*/
 EXPORT void initsolbuf(solbuf_t *solbuf, int cyclic, int nmax);
 EXPORT void freesolbuf(solbuf_t *solbuf);
@@ -1916,7 +1944,7 @@ EXPORT int lexioncorr(gtime_t time, const nav_t *nav, const double *pos,
 extern int showmsg(char *format,...);
 extern void settspan(gtime_t ts, gtime_t te);
 extern void settime(gtime_t time);
-
+#endif
 #ifdef __cplusplus
 }
 #endif

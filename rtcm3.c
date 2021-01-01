@@ -218,6 +218,7 @@ static int test_staid(rtcm_t *rtcm, int staid)
     }
     return 1;
 }
+#ifndef _NEW_OBS_
 /* decode type 1001-1004 message header --------------------------------------*/
 static int decode_head1001(rtcm_t *rtcm, int *sync)
 {
@@ -372,6 +373,7 @@ static int decode_type1004(rtcm_t *rtcm)
     rtcm->obsflag=!sync;
     return sync?0:1;
 }
+#endif
 /* get signed 38bit field ----------------------------------------------------*/
 static double getbits_38(const unsigned char *buff, int pos)
 {
@@ -398,9 +400,14 @@ static int decode_type1005(rtcm_t *rtcm)
     if (rtcm->outtype) {
         msg=rtcm->msgtype+strlen(rtcm->msgtype);
         for (j=0;j<3;j++) re[j]=rr[j]*0.0001;
+#ifndef _NEW_OBS_
         ecef2pos(re,pos);
         sprintf(msg," staid=%4d pos=%.8f %.8f %.3f",staid,pos[0]*R2D,pos[1]*R2D,
                 pos[2]);
+#else
+        sprintf(msg," staid=%4d pos=14%.4f %14.4f %14.4f",staid, re[0], re[1],
+                re[2]);
+#endif
     }
     /* test station id */
     if (!test_staid(rtcm,staid)) return -1;
@@ -436,9 +443,14 @@ static int decode_type1006(rtcm_t *rtcm)
     if (rtcm->outtype) {
         msg=rtcm->msgtype+strlen(rtcm->msgtype);
         for (j=0;j<3;j++) re[j]=rr[j]*0.0001;
+#ifndef _NEW_OBS_
         ecef2pos(re,pos);
         sprintf(msg," staid=%4d pos=%.8f %.8f %.3f anth=%.3f",staid,pos[0]*R2D,
                 pos[1]*R2D,pos[2],anth);
+#else
+        sprintf(msg," staid=%4d pos=%14.4f %14.4f %14.4f anth=%.3f",staid, re[0],
+                re[1], re[2],anth);
+#endif
     }
     /* test station id */
     if (!test_staid(rtcm,staid)) return -1;
@@ -452,6 +464,7 @@ static int decode_type1006(rtcm_t *rtcm)
     rtcm->sta.itrf=itrf;
     return 5;
 }
+#ifndef _NEW_OBS_
 /* decode type 1007: antenna descriptor --------------------------------------*/
 static int decode_type1007(rtcm_t *rtcm)
 {
@@ -478,10 +491,13 @@ static int decode_type1007(rtcm_t *rtcm)
     }
     /* test station id */
     if (!test_staid(rtcm,staid)) return -1;
-    
+#ifndef _NEW_OBS_
     strncpy(rtcm->sta.antdes,des,n); rtcm->sta.antdes[n]='\0';
+#endif
     rtcm->sta.antsetup=setup;
+#ifndef _NEW_OBS_
     rtcm->sta.antsno[0]='\0';
+#endif
     return 5;
 }
 /* decode type 1008: antenna descriptor & serial number ----------------------*/
@@ -514,10 +530,13 @@ static int decode_type1008(rtcm_t *rtcm)
     }
     /* test station id */
     if (!test_staid(rtcm,staid)) return -1;
-    
+#ifndef _NEW_OBS_
     strncpy(rtcm->sta.antdes,des,n); rtcm->sta.antdes[n]='\0';
+#endif
     rtcm->sta.antsetup=setup;
+#ifndef _NEW_OBS_
     strncpy(rtcm->sta.antsno,sno,m); rtcm->sta.antsno[m]='\0';
+#endif
     return 5;
 }
 /* decode type 1009-1012 message header --------------------------------------*/
@@ -671,6 +690,7 @@ static int decode_type1013(rtcm_t *rtcm)
 {
     return 0;
 }
+#endif
 /* decode type 1019: gps ephemerides -----------------------------------------*/
 static int decode_type1019(rtcm_t *rtcm)
 {
@@ -808,6 +828,7 @@ static int decode_type1020(rtcm_t *rtcm)
     rtcm->ephsat=sat;
     return 2;
 }
+#ifndef _NEW_OBS_
 /* decode type 1021: helmert/abridged molodenski -----------------------------*/
 static int decode_type1021(rtcm_t *rtcm)
 {
@@ -986,6 +1007,7 @@ static int decode_type1039(rtcm_t *rtcm)
     trace(2,"rtcm3 1039: not supported message\n");
     return 0;
 }
+#endif
 /* decode type 1044: qzss ephemerides (ref [15]) -----------------------------*/
 static int decode_type1044(rtcm_t *rtcm)
 {
@@ -1266,6 +1288,7 @@ static int decode_type1042(rtcm_t *rtcm)
     rtcm->ephsat=sat;
     return 2;
 }
+#ifndef _NEW_OBS_
 /* decode ssr 1,4 message header ---------------------------------------------*/
 static int decode_ssr1_head(rtcm_t *rtcm, int sys, int *sync, int *iod,
                             double *udint, int *refd, int *hsize)
@@ -1750,6 +1773,7 @@ static int decode_ssr7(rtcm_t *rtcm, int sys)
     }
     return 20;
 }
+#endif
 /* get signal index ----------------------------------------------------------*/
 static void sigindex(int sys, const unsigned char *code, const int *freq, int n,
                      const char *opt, int *ind)
@@ -2248,12 +2272,15 @@ extern int decode_rtcm3(rtcm_t *rtcm)
         rtcm->time=gpst2time(week,floor(tow));
     }
     switch (type) {
+#ifndef _NEW_OBS_
         case 1001: ret=decode_type1001(rtcm); break; /* not supported */
         case 1002: ret=decode_type1002(rtcm); break;
         case 1003: ret=decode_type1003(rtcm); break; /* not supported */
         case 1004: ret=decode_type1004(rtcm); break;
+#endif
         case 1005: ret=decode_type1005(rtcm); break;
         case 1006: ret=decode_type1006(rtcm); break;
+#ifndef _NEW_OBS_
         case 1007: ret=decode_type1007(rtcm); break;
         case 1008: ret=decode_type1008(rtcm); break;
         case 1009: ret=decode_type1009(rtcm); break; /* not supported */
@@ -2261,8 +2288,10 @@ extern int decode_rtcm3(rtcm_t *rtcm)
         case 1011: ret=decode_type1011(rtcm); break; /* not supported */
         case 1012: ret=decode_type1012(rtcm); break;
         case 1013: ret=decode_type1013(rtcm); break; /* not supported */
+#endif
         case 1019: ret=decode_type1019(rtcm); break;
         case 1020: ret=decode_type1020(rtcm); break;
+#ifndef _NEW_OBS_
         case 1021: ret=decode_type1021(rtcm); break; /* not supported */
         case 1022: ret=decode_type1022(rtcm); break; /* not supported */
         case 1023: ret=decode_type1023(rtcm); break; /* not supported */
@@ -2280,11 +2309,13 @@ extern int decode_rtcm3(rtcm_t *rtcm)
         case 1037: ret=decode_type1037(rtcm); break; /* not supported */
         case 1038: ret=decode_type1038(rtcm); break; /* not supported */
         case 1039: ret=decode_type1039(rtcm); break; /* not supported */
+#endif
         case 1044: ret=decode_type1044(rtcm); break;
         case 1045: ret=decode_type1045(rtcm); break;
         case 1046: ret=decode_type1046(rtcm); break;
         case   63: ret=decode_type1042(rtcm); break; /* RTCM draft */
         case 1042: ret=decode_type1042(rtcm); break;
+#ifndef _NEW_OBS_
         case 1057: ret=decode_ssr1(rtcm,SYS_GPS); break;
         case 1058: ret=decode_ssr2(rtcm,SYS_GPS); break;
         case 1059: ret=decode_ssr3(rtcm,SYS_GPS); break;
@@ -2300,45 +2331,57 @@ extern int decode_rtcm3(rtcm_t *rtcm)
         case 1071: ret=decode_msm0(rtcm,SYS_GPS); break; /* not supported */
         case 1072: ret=decode_msm0(rtcm,SYS_GPS); break; /* not supported */
         case 1073: ret=decode_msm0(rtcm,SYS_GPS); break; /* not supported */
+#endif
         case 1074: ret=decode_msm4(rtcm,SYS_GPS); break;
         case 1075: ret=decode_msm5(rtcm,SYS_GPS); break;
         case 1076: ret=decode_msm6(rtcm,SYS_GPS); break;
         case 1077: ret=decode_msm7(rtcm,SYS_GPS); break;
+#ifndef _NEW_OBS_
         case 1081: ret=decode_msm0(rtcm,SYS_GLO); break; /* not supported */
         case 1082: ret=decode_msm0(rtcm,SYS_GLO); break; /* not supported */
         case 1083: ret=decode_msm0(rtcm,SYS_GLO); break; /* not supported */
+#endif
         case 1084: ret=decode_msm4(rtcm,SYS_GLO); break;
         case 1085: ret=decode_msm5(rtcm,SYS_GLO); break;
         case 1086: ret=decode_msm6(rtcm,SYS_GLO); break;
         case 1087: ret=decode_msm7(rtcm,SYS_GLO); break;
+#ifndef _NEW_OBS_
         case 1091: ret=decode_msm0(rtcm,SYS_GAL); break; /* not supported */
         case 1092: ret=decode_msm0(rtcm,SYS_GAL); break; /* not supported */
         case 1093: ret=decode_msm0(rtcm,SYS_GAL); break; /* not supported */
+#endif
         case 1094: ret=decode_msm4(rtcm,SYS_GAL); break;
         case 1095: ret=decode_msm5(rtcm,SYS_GAL); break;
         case 1096: ret=decode_msm6(rtcm,SYS_GAL); break;
         case 1097: ret=decode_msm7(rtcm,SYS_GAL); break;
+#ifndef _NEW_OBS_
         case 1101: ret=decode_msm0(rtcm,SYS_SBS); break; /* not supported */
         case 1102: ret=decode_msm0(rtcm,SYS_SBS); break; /* not supported */
         case 1103: ret=decode_msm0(rtcm,SYS_SBS); break; /* not supported */
+#endif
         case 1104: ret=decode_msm4(rtcm,SYS_SBS); break;
         case 1105: ret=decode_msm5(rtcm,SYS_SBS); break;
         case 1106: ret=decode_msm6(rtcm,SYS_SBS); break;
         case 1107: ret=decode_msm7(rtcm,SYS_SBS); break;
+#ifndef _NEW_OBS_
         case 1111: ret=decode_msm0(rtcm,SYS_QZS); break; /* not supported */
         case 1112: ret=decode_msm0(rtcm,SYS_QZS); break; /* not supported */
         case 1113: ret=decode_msm0(rtcm,SYS_QZS); break; /* not supported */
+#endif
         case 1114: ret=decode_msm4(rtcm,SYS_QZS); break;
         case 1115: ret=decode_msm5(rtcm,SYS_QZS); break;
         case 1116: ret=decode_msm6(rtcm,SYS_QZS); break;
         case 1117: ret=decode_msm7(rtcm,SYS_QZS); break;
+#ifndef _NEW_OBS_
         case 1121: ret=decode_msm0(rtcm,SYS_CMP); break; /* not supported */
         case 1122: ret=decode_msm0(rtcm,SYS_CMP); break; /* not supported */
         case 1123: ret=decode_msm0(rtcm,SYS_CMP); break; /* not supported */
+#endif
         case 1124: ret=decode_msm4(rtcm,SYS_CMP); break;
         case 1125: ret=decode_msm5(rtcm,SYS_CMP); break;
         case 1126: ret=decode_msm6(rtcm,SYS_CMP); break;
         case 1127: ret=decode_msm7(rtcm,SYS_CMP); break;
+#ifndef _NEW_OBS_
         case 1230: ret=decode_type1230(rtcm);     break; /* not supported */
         case 1240: ret=decode_ssr1(rtcm,SYS_GAL); break;
         case 1241: ret=decode_ssr2(rtcm,SYS_GAL); break;
@@ -2368,6 +2411,7 @@ extern int decode_rtcm3(rtcm_t *rtcm)
         case   12: ret=decode_ssr7(rtcm,SYS_GAL); break; /* tentative */
         case   13: ret=decode_ssr7(rtcm,SYS_QZS); break; /* tentative */
         case   14: ret=decode_ssr7(rtcm,SYS_CMP); break; /* tentative */
+#endif
     }
     if (ret>=0) {
         type-=1000;

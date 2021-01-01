@@ -544,7 +544,12 @@ static int encode_type1006(rtcm_t *rtcm, int sync)
 static int encode_type1007(rtcm_t *rtcm, int sync)
 {
     int i=24,j,antsetup=rtcm->sta.antsetup;
+#ifndef _NEW_OBS_
     int n=MIN(strlen(rtcm->sta.antdes),31);
+#else
+    int n=31;
+    char antdes[31]={0};
+#endif
     
     trace(3,"encode_type1007: sync=%d\n",sync);
     
@@ -554,12 +559,17 @@ static int encode_type1007(rtcm_t *rtcm, int sync)
     /* antenna descriptor */
     setbitu(rtcm->buff,i,8,n); i+=8;
     for (j=0;j<n;j++) {
+#ifndef _NEW_OBS_
         setbitu(rtcm->buff,i,8,rtcm->sta.antdes[j]); i+=8;
+#else
+        setbitu(rtcm->buff,i,8,antdes[j]); i+=8;
+#endif
     }
     setbitu(rtcm->buff,i,8,antsetup); i+=8; /* antetnna setup id */
     rtcm->nbit=i;
     return 1;
 }
+#ifndef _NEW_OBS_
 /* encode type 1008: antenna descriptor & serial number ----------------------*/
 static int encode_type1008(rtcm_t *rtcm, int sync)
 {
@@ -742,6 +752,7 @@ static int encode_type1012(rtcm_t *rtcm, int sync)
     rtcm->nbit=i;
     return 1;
 }
+#endif
 /* encode type 1019: gps ephemerides -----------------------------------------*/
 static int encode_type1019(rtcm_t *rtcm, int sync)
 {
@@ -893,6 +904,7 @@ static int encode_type1020(rtcm_t *rtcm, int sync)
     rtcm->nbit=i;
     return 1;
 }
+#ifndef _NEW_OBS_
 /* encode type 1033: receiver and antenna descriptor -------------------------*/
 static int encode_type1033(rtcm_t *rtcm, int sync)
 {
@@ -933,6 +945,7 @@ static int encode_type1033(rtcm_t *rtcm, int sync)
     rtcm->nbit=i;
     return 1;
 }
+#endif
 /* encode type 1044: qzss ephemerides (ref [15]) -----------------------------*/
 static int encode_type1044(rtcm_t *rtcm, int sync)
 {
@@ -1284,6 +1297,7 @@ static int encode_type63(rtcm_t *rtcm, int sync)
     rtcm->nbit=i;
     return 1;
 }
+#ifndef _NEW_OBS_
 /* encode ssr header ---------------------------------------------------------*/
 static int encode_ssr_head(int type, rtcm_t *rtcm, int sys, int nsat, int sync,
                            int iod, double udint, int refd, int provid,
@@ -1702,6 +1716,7 @@ static int encode_ssr7(rtcm_t *rtcm, int sys, int sync)
     rtcm->nbit=i;
     return 1;
 }
+#endif
 /* satellite no to msm satellite id ------------------------------------------*/
 static int to_satid(int sys, int sat)
 {
@@ -2394,26 +2409,33 @@ extern int encode_rtcm3(rtcm_t *rtcm, int type, int sync)
     trace(3,"encode_rtcm3: type=%d sync=%d\n",type,sync);
     
     switch (type) {
+#ifndef _NEW_OBS_
         case 1001: ret=encode_type1001(rtcm,sync);     break;
         case 1002: ret=encode_type1002(rtcm,sync);     break;
         case 1003: ret=encode_type1003(rtcm,sync);     break;
         case 1004: ret=encode_type1004(rtcm,sync);     break;
+#endif
         case 1005: ret=encode_type1005(rtcm,sync);     break;
         case 1006: ret=encode_type1006(rtcm,sync);     break;
+#ifndef _NEW_OBS_
         case 1007: ret=encode_type1007(rtcm,sync);     break;
         case 1008: ret=encode_type1008(rtcm,sync);     break;
         case 1009: ret=encode_type1009(rtcm,sync);     break;
         case 1010: ret=encode_type1010(rtcm,sync);     break;
         case 1011: ret=encode_type1011(rtcm,sync);     break;
         case 1012: ret=encode_type1012(rtcm,sync);     break;
+#endif
         case 1019: ret=encode_type1019(rtcm,sync);     break;
         case 1020: ret=encode_type1020(rtcm,sync);     break;
+#ifndef _NEW_OBS_
         case 1033: ret=encode_type1033(rtcm,sync);     break;
+#endif
         case 1042: ret=encode_type1042(rtcm,sync);     break;
         case 1044: ret=encode_type1044(rtcm,sync);     break;
         case 1045: ret=encode_type1045(rtcm,sync);     break;
         case 1046: ret=encode_type1046(rtcm,sync);     break;
         case   63: ret=encode_type63  (rtcm,sync);     break; /* draft */
+#ifndef _NEW_OBS_
         case 1057: ret=encode_ssr1(rtcm,SYS_GPS,sync); break;
         case 1058: ret=encode_ssr2(rtcm,SYS_GPS,sync); break;
         case 1059: ret=encode_ssr3(rtcm,SYS_GPS,sync); break;
@@ -2426,6 +2448,7 @@ extern int encode_rtcm3(rtcm_t *rtcm, int type, int sync)
         case 1066: ret=encode_ssr4(rtcm,SYS_GLO,sync); break;
         case 1067: ret=encode_ssr5(rtcm,SYS_GLO,sync); break;
         case 1068: ret=encode_ssr6(rtcm,SYS_GLO,sync); break;
+#endif
         case 1071: ret=encode_msm1(rtcm,SYS_GPS,sync); break;
         case 1072: ret=encode_msm2(rtcm,SYS_GPS,sync); break;
         case 1073: ret=encode_msm3(rtcm,SYS_GPS,sync); break;
@@ -2468,6 +2491,7 @@ extern int encode_rtcm3(rtcm_t *rtcm, int type, int sync)
         case 1125: ret=encode_msm5(rtcm,SYS_CMP,sync); break;
         case 1126: ret=encode_msm6(rtcm,SYS_CMP,sync); break;
         case 1127: ret=encode_msm7(rtcm,SYS_CMP,sync); break;
+#ifndef _NEW_OBS_
         case 1240: ret=encode_ssr1(rtcm,SYS_GAL,sync); break;
         case 1241: ret=encode_ssr2(rtcm,SYS_GAL,sync); break;
         case 1242: ret=encode_ssr3(rtcm,SYS_GAL,sync); break;
@@ -2496,6 +2520,7 @@ extern int encode_rtcm3(rtcm_t *rtcm, int type, int sync)
         case   12: ret=encode_ssr7(rtcm,SYS_GAL,sync); break; /* tentative */
         case   13: ret=encode_ssr7(rtcm,SYS_QZS,sync); break; /* tentative */
         case   14: ret=encode_ssr7(rtcm,SYS_CMP,sync); break; /* tentative */
+#endif
     }
     if (ret>0) {
         type-=1000;

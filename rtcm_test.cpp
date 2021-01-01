@@ -70,7 +70,7 @@ static void write_rtcm3_msm(rtcm_t *out, int msg, int sync, FILE *fOUT)
 
 int main()
 {
-    traceopen("rtcm.log");
+    //traceopen("rtcm.log");
     tracelevel(4);
 
     rtcm_t rtcm;// = { 0 };
@@ -196,7 +196,7 @@ int main()
         if (fCSV_OUT != NULL) fclose(fCSV_OUT);
     }
 
-    traceclose();
+    //traceclose();
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu
