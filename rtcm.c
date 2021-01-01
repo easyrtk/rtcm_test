@@ -357,6 +357,7 @@ extern int gen_rtcm2(rtcm_t *rtcm, int type, int sync)
 *-----------------------------------------------------------------------------*/
 extern int gen_rtcm3(rtcm_t *rtcm, int type, int sync)
 {
+    /* need to consider the multiple observation message outside this loop */
     unsigned int crc;
     int i=0;
     

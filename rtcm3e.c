@@ -1774,20 +1774,29 @@ static void gen_msm_index(rtcm_t *rtcm, int sys, int *nsat, int *nsig,
             sat_ind[sat-1]=sig_ind[sig-1]=1;
         }
     }
-    for (i=0;i<64;i++) {
-        if (sat_ind[i]) sat_ind[i]=++(*nsat);
-    }
+    /* add modification to handle the first 64 cell if the nsat*nsig > 64 */
     for (i=0;i<32;i++) {
         if (sig_ind[i]) sig_ind[i]=++(*nsig);
+    }
+    for (i=0;i<64;i++) {
+        if (sat_ind[i]) {
+            if ((*nsat+1)*(*nsig)>=64)
+                sat_ind[i]=0;
+            else
+                sat_ind[i]=++(*nsat);
+            
+        }
     }
     /* generate cell index */
     for (i=0;i<rtcm->obs.n;i++) {
         if (!(sat=to_satid(sys,rtcm->obs.data[i].sat))) continue;
+        if (!sat_ind[sat-1]) continue;
         
         for (j=0;j<NFREQ+NEXOBS;j++) {
             if (!(sig=to_sigid(sys,rtcm->obs.data[i].code[j],&f))) continue;
+            if (!sig_ind[sig-1]) continue;
             
-            cell=sig_ind[sig-1]-1+(sat_ind[sat-1]-1)*(*nsig);
+            cell=sig_ind[sig-1]-1+(sat_ind[sat-1]-1)*(*nsig); if (cell>=64) continue;
             cell_ind[cell]=1;
         }
     }
@@ -1809,6 +1818,7 @@ static void gen_msm_sat(rtcm_t *rtcm, int sys, int nsat,
     for (i=0;i<rtcm->obs.n;i++) {
         data=rtcm->obs.data+i;
         if (!(sat=to_satid(sys,data->sat))) continue;
+        if (!sat_ind[sat-1]) continue;
         fcn=fcn_glo(data->sat,rtcm);
         
         for (j=0;j<NFREQ+NEXOBS;j++) {
@@ -1849,9 +1859,11 @@ static void gen_msm_sig(rtcm_t *rtcm, int sys, int nsat, int nsig, int ncell,
         data=rtcm->obs.data+i;
         
         if (!(sat=to_satid(sys,data->sat))) continue;
+        if (!sat_ind[sat-1]) continue;
         
         for (j=0;j<NFREQ+NEXOBS;j++) {
             if (!(sig=to_sigid(sys,data->code[j],&f))) continue;
+            if (!sig_ind[sig-1]) continue;
             k=sat_ind[sat-1]-1;
             if ((cell=cell_ind[sig_ind[sig-1]-1+k*nsig])>=64) continue;
             
