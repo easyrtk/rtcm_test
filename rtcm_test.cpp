@@ -127,7 +127,7 @@ int main()
                 if (nj > 0) write_rtcm3_msm(&rtcm, 1117, nc > 0, fRTCM_OUT); /* QZS */
                 if (nc > 0) write_rtcm3_msm(&rtcm, 1127, 0, fRTCM_OUT); /* CMP */
 
-#if 0
+#if 1
                 /* test with encoder without make cell according to number of satellites, this will only output max 64 nsat*nsig */
                 gen_rtcm3(&rtcm, 1127, 0);
 
