@@ -4,6 +4,34 @@
 #include <iostream>
 #include "rtklib.h"
 
+void make_file_name(const char* fname1, const char* fname2, char* ofname)
+{
+    char buffer1[255] = { 0 }, buffer2[255] = { 0 };
+
+    strcpy(buffer1, fname1);
+    char* result = strrchr(buffer1, '.');
+    if (result != NULL) result[0] = '\0';
+
+    if (fname2 != NULL)
+    {
+        const char* result1 = strrchr(fname2, '\\');
+
+        if (result1 != NULL)
+            strncpy(buffer2, result1 + 1, strlen(result1));
+        else
+            strncpy(buffer2, fname2, strlen(fname2));
+
+        result = strrchr(buffer2, '.');
+
+        if (result != NULL) result[0] = '\0';
+    }
+
+    if (strlen(buffer2) > 0)
+        sprintf(ofname, "%s--%s", buffer1, buffer2);
+    else
+        sprintf(ofname, "%s", buffer1);
+}
+
 
 static void decode_rtcm(rtcm_t* rtcm)
 {
@@ -68,21 +96,34 @@ static void write_rtcm3_msm(rtcm_t *out, int msg, int sync, FILE *fOUT)
     out->obs.n=nobs;
 }
 
-int main()
+int main(int argc, char** argv)
 {
     traceopen("rtcm.log");
     tracelevel(4);
 
-    rtcm_t rtcm;// = { 0 };
-    if (init_rtcm(&rtcm))
+    for (int i=0;i<argc;++i)
     {
+        printf("%3i,%s\r\n", i, argv[i]);
+    }
+
+    rtcm_t rtcm;// = { 0 };
+    if (init_rtcm(&rtcm) && argc>=2)
+    {
+        char fname1[255] = { 0 }, fname2[255] = { 0 };
+        make_file_name(argv[1], NULL, fname1);
+
         //FILE* fRTCM_IN = fopen("C:\\rtklib\\2\\sta8100364c34.rtcm3", "rb");
         //FILE* fRTCM_OUT = fopen("C:\\rtklib\\2\\sta8100364c34_.rtcm3", "wb");
         //FILE* fCSV_OUT = fopen("C:\\rtklib\\2\\sta8100364c34.csv", "w");
 
-        FILE* fRTCM_IN = fopen("C:\\rtklib\\jfng\\jfng365i46.rtcm3", "rb");
-        FILE* fRTCM_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.rtcm3", "wb");
-        FILE* fCSV_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.csv", "w");
+        //FILE* fRTCM_IN = fopen("C:\\rtklib\\jfng\\jfng365i46.rtcm3", "rb");
+        //FILE* fRTCM_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.rtcm3", "wb");
+        //FILE* fCSV_OUT = fopen("C:\\rtklib\\jfng\\jfng365i46_.csv", "w");
+
+        //FILE* fRTCM_IN = fopen("C:\\ST\\SDK_5_8_12_CutBx_0129\\com_tools\\2021-1-28\\2021-1-28-20-3-19-COM3.bin", "rb");
+        FILE* fRTCM_IN = fopen(argv[1], "rb");
+        sprintf(fname2, "%s_.rtcm3", fname1);   FILE* fRTCM_OUT = fopen(fname2, "wb");
+        sprintf(fname2, "%s_.csv", fname1);     FILE* fCSV_OUT = fopen(fname2, "w");
 
         while (fRTCM_IN != NULL && !feof(fRTCM_IN))
         {
@@ -115,9 +156,9 @@ int main()
                     for (j = 0; j < NFREQ + NEXOBS; ++j)
                     {
                         if (obsd->code[j] == 0) continue;
-                        printf("%4i,%10.3f,%s,%2i,%14.4f,%14.4f,%10.4f,%3i\n", wn, ws, id, obsd->code[j], obsd->P[j], obsd->L[j], obsd->D[j], obsd->SNR[j]);
+                        printf("%4i,%4i,%10.3f,%s,%2i,%14.4f,%14.4f,%10.4f,%3i\n", rtcm.staid, wn, ws, id, obsd->code[j], obsd->P[j], obsd->L[j], obsd->D[j], obsd->SNR[j]);
                         if (fCSV_OUT)
-                            fprintf(fCSV_OUT, "%4i,%10.3f,%s,%2i,%14.4f,%14.4f,%10.4f,%3i\n", wn, ws, id, obsd->code[j], obsd->P[j], obsd->L[j], obsd->D[j], obsd->SNR[j]);
+                            fprintf(fCSV_OUT, "%4i,%4i,%10.3f,%s,%2i,%14.4f,%14.4f,%10.4f,%3i\n", rtcm.staid, wn, ws, id, obsd->code[j], obsd->P[j], obsd->L[j], obsd->D[j], obsd->SNR[j]);
                     }
                 }
                 if (ng > 0) write_rtcm3_msm(&rtcm, 1077, (nr + ne + ns + nj + nc) > 0, fRTCM_OUT); /* GPS */
